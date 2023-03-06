@@ -1,0 +1,94 @@
+npm init 을 통해 설정 (라이브러리를 설치하기 위한 도구 )
+설치중 entry point server.js 라고 파일명을 정해준다 
+npm install express 설치
+
+server.js  폴더안쪽
+const express= require('express');
+const app = express();
+
+서버에 자동 저장해주는 라이브러리 설치
+npm install -g nodemon
+
+서버안쪽 form태긔 post get 전달 해주는 라이브러리 설치 npm install body-parser
+const bodyParser = require('body-parser')
+app.use(bodyParser.urlencoded({extended:true}))
+
+ejs 설치 및 npm install ejs 상단노출
+app.set('view engine','ejs')
+ejs 사용을 위해선 views 라는 폴더 생성후 안쪽에 입력해줘야함
+
+몽고 DB 라이브러리 설치 및 최상단 추가
+npm install mongodb@3.6.4
+const MongoClient = require('mongodb').MongoClient
+몽고DB연결방법 
+MongoClient.connect('커넥션 URL'.function(err,client){})
+케넥션URL 추가후 사용
+서버쪽 최상단 폴더 연결  client<라는 함수를 통해연결 EX) db= client.db('todoapp') 연결해준다
+ex)
+var db;
+MongoClient.connect('mongodb+srv://sai:sai@cluster0.fivip1p.mongodb.net/?retryWrites=true&w=majority',function(err,client){
+  if(err)return console.log(err);
+  db = client.db('todoapp');
+  app.listen(8080,function(){
+    console.log('listening on 8080 로연결된다')
+  });
+})
+
+
+HTML DB 데이터 꼽는법
+1.
+form태그 사용 하여 DB에 post 해준다
+<form action="/연결될링크" method="POST">
+  <input type="text" name="title">
+</form>
+2. server post요청하기 db insertOne(업데이트 할자료)함수활용
+app.post('/연결될링크',function(req,res){
+  res.send('연결완료')
+  db.collection('post').insertOne({제목:req.body.title,날짜:req.body.name(포스트 요청할때의 input 네이밍)},function(err,result){
+  })
+})
+3.HTML에 해당 db 가져다가 쓰기 
+app.get('/list',function(req,res){//다가져오겠다
+  db.collection('post').find().toArray(function(err,result){
+    res.render('list.ejs',{list:result}) 라고 했을떄 list.ejs에서 해당 오브젝트 자료를 끌어 쓸수 있게 되는것 
+  })
+})
+
+게시물 마다 번호 받는 방법
+1.우선 몽고DB쪽에 번호를 추가할 counter 를 추가로 생성후 게시물 을 추가한다.
+totalPost :0 설정후 설정 숫자로 변경 int//db에서 해당 위치를 찾을 name이까지(게시물번호)라는 식으로 저장해준다.
+2.app.post 게시글 달렸던 부분에 (_id:총게시물갯수 +1)을 추가후 db에서 name저장되어있는 게시물겟수를 찾아주세요 라고 설정한다.
+db.collection('counter').findOne({name:'게시물갯수'},function(err,result){
+  console.log(result.totalPost);
+})
+게시물이 추가되었으면 totalPost에도 +1이 추가되라 라고 설정이 필요
+db.collection('counter').updateOne({어떤데이터를 수정할지},{수정할값},function(){})
+operator 를 사용해서카운터를 추가해준다.
+{$inc: or $set: {totalPost :1 }} 이런식으로 연산자를 추가해 사용
+
+게시물 추가 최종정리
+1.누가 폼에서 /add post 요청을 하면 요청.body에 게시물 데이터가 담겨온다.
+2.counter 파일 생성후 게시물갯수 이름을 가진 항목을 찾아 그 게시물겟수중 totalpost 를 총게시물갯수 라는 변수로 만들어준다.
+3.post라는 파일에 하나를 추가 해주면된다 inserOne을 통해 _id:c총게시물갯수에 1추가로 한다라고 표시해주세요
+4.counter라는 콜랙션 안에도 totlapost를 게시물 등록마다 1씩 증가 시켜줄때 operator를 사용하여 +1씩 증가흐는 $inc 함수를 사용해준다
+
+=========삭제 요청하기 만들기
+
+1.ajax delete기능을 통해 삭제 하기 
+$.ajax({
+  method:'DELETE',
+  url:'/delete',
+  data:'요청과 함께 보낼데이터'<<어떤 게시물을 삭제할지 보내면됨
+}).done(function(결과){
+
+})
+2.서버에가서 app.delete 추가후 
+요청.body에 담긴 게시물 번호를 찾아 DB에서 게시물을 삭제 해주면된다.
+db.collection('post').deleteOne({_id:req.body},function(err,result){})
+_id의 값을 숫자로 변화해줘야 해서
+req.body._id = parseInt(req.body._id)
+해당 번호를 찾기 위해서 ㄴid값을 불러와야 하는데 있데 개발자 한테만 보이는 data-id= 를 활용하여
+위치를 찾의면됨 e.target.dataset.id<<data-id<<뒤에꺼
+ajax가 성공인지 실패인지 판단하기 위해 res.status(200) 이런식으로 데이터를 보내줘야함
+
+=========상세페이 만들기
