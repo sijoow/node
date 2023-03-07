@@ -9,11 +9,20 @@ const methodOverride = require('method-override');
 const Collection = require('mongodb/lib/collection');
 app.use(methodOverride('_method'))
 
+//리액트 파일 추가 하기  ejs 파일 뿐만아니라 리액트 파일도 함꼐 사용하기 
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'blog/build')));
+
+app.get('/react', function (요청, 응답) {
+  응답.sendFile(path.join(__dirname, '/blog/build/index.html'));
+});
+
+
+/*
 app.get('/',function(req,res){
   res.render('index.ejs')
 })
-
-
+*/
 
 MongoClient.connect('mongodb+srv://sai:sai@cluster0.fivip1p.mongodb.net/?retryWrites=true&w=majority',function(err,client){
   if(err)return console.log(err);
