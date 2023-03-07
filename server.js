@@ -10,7 +10,11 @@ const Collection = require('mongodb/lib/collection');
 app.use(methodOverride('_method'))
 
 //리액트 파일 추가 하기  ejs 파일 뿐만아니라 리액트 파일도 함꼐 사용하기 
+/*npm install cors 설치 진행 */
 const path = require('path');
+app.use(express.json());
+var cors = require('cors');
+app.use(cors());
 app.use(express.static(path.join(__dirname, 'blog/build')));
 
 app.get('/react', function (요청, 응답) {
@@ -191,3 +195,8 @@ app.get('/search',(req,res)=>{
     }
   ]
 })
+
+
+app.get('*', function (req, res) {
+  res.sendFile(path.join(__dirname, '/blog/src/404.html'));
+});
