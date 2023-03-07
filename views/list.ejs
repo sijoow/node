@@ -16,14 +16,26 @@
 
  <h4 class="container mt-4"><strong>게시글 리스트</strong></h4>
  
+ <div class="container input-group mb-2">
+  <input class="form-control" id="search-input">
+  <button class="input-group-append btn btn-danger" id="search">검색</button>
+</div>
+ <script>
+  $('#search').click(function(){
+    var 입력한값 = $('#search-input').val()
+    window.location.replace('/search?value='+입력한값)
+  });
+ </script>
+
   <div class="border_land">
     <ul class="list-group">
       <%for(var i=0;i<list.length;i++){ %>
-      <li class="list-group-item" >
+      <li class="list-group-item"  onclick="location.href='/detail/<%=list[i]._id %>'">
         <p>번호:<%=list[i]._id %></p>
         <h4>제목:<%=list[i].제목 %></h4>
         <p>마감날짜:<%=list[i].날짜 %></p>
         <button class="delete" data-id="<%=list[i]._id %>">삭제하기</button>
+        <button class="edit" data-id=""><a href="/edit/<%=list[i]._id %>">수정하기</a></button>
       </li>
       <%}%>
     </ul>

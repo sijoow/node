@@ -91,4 +91,14 @@ req.body._id = parseInt(req.body._id)
 위치를 찾의면됨 e.target.dataset.id<<data-id<<뒤에꺼
 ajax가 성공인지 실패인지 판단하기 위해 res.status(200) 이런식으로 데이터를 보내줘야함
 
-=========상세페이 만들기
+=========편집하기
+npm install method-override
+const methodOverride = require('method-override');
+const Collection = require('mongodb/lib/collection');
+app.use(methodOverride('_method'))
+추가 후 설정
+params 를 통한 위치 파악후 수정작업 진행
+
+//회원가입하기 부분
+npm instal passport passport-local express-session 세팅후
+
